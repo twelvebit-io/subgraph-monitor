@@ -128,6 +128,7 @@ export async function main() {
     // Log results for local debugging
     results.forEach((result) => {
       console.log(`\nEndpoint: ${result.name}`);
+      console.log(`Latency: ${result.latency} seconds`);
       console.log(`Status: ${result.status}`);
       if (result.errors.length > 0) {
         console.log("Errors:", result.errors);

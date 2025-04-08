@@ -21,4 +21,5 @@ export interface CheckResult {
   status: "healthy 🟢" | "unhealthy 🔴";
   errors: string[];
   timestamp: number;
+  latency: number;
 }

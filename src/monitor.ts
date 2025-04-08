@@ -22,6 +22,7 @@ export class SubgraphMonitor {
   private async checkEndpoint(endpoint: EndpointConfig): Promise<CheckResult> {
     const errors: string[] = [];
     const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    let latency = 0;
 
     try {
       const response = await axios.post<MetaQueryResponse>(
@@ -49,12 +50,14 @@ export class SubgraphMonitor {
         errors.push("Subgraph has indexing errors");
       }
 
-      // Check if timestamp is within 3 hours
+      // Check if timestamp is within 1 hour
       const timeDiff = currentTime - meta.block.timestamp;
-      if (timeDiff > 3 * 3600) {
-        // 3 hours in seconds
+      if (timeDiff > 1 * 3600) {
+        // 1 hour in seconds
         errors.push(`Subgraph is ${Math.floor(timeDiff / 3600)} hours behind`);
       }
+
+      latency = timeDiff; // Seconds
     } catch (error) {
       if (axios.isAxiosError(error)) {
         errors.push(`Request failed: ${error.message}`);
@@ -69,6 +72,7 @@ export class SubgraphMonitor {
       status: errors.length === 0 ? "healthy 🟢" : "unhealthy 🔴",
       errors,
       timestamp: currentTime,
+      latency: latency,
     };
   }
 
