@@ -39,6 +39,7 @@ jobs:
 
   keep-alive:
     runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * 0' # Only run on weekly schedule
     steps:
       - uses: actions/checkout@v4
         with:
