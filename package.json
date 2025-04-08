@@ -1,0 +1,24 @@
+{
+  "name": "subgraph-monitor",
+  "version": "1.0.0",
+  "description": "Monitor GraphQL endpoints for availability and sync status",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/local.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/jest": "^29.5.12",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2"
+  }
+}
