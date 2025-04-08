@@ -49,7 +49,7 @@ export class SubgraphMonitor {
         errors.push("Subgraph has indexing errors");
       }
 
-      // Check if timestamp is within 12 hours
+      // Check if timestamp is within 3 hours
       const timeDiff = currentTime - meta.block.timestamp;
       if (timeDiff > 3 * 3600) {
         // 3 hours in seconds

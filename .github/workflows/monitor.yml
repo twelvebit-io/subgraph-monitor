@@ -2,11 +2,15 @@ name: Subgraph Monitor
 
 on:
   schedule:
-    - cron: "*/15 * * * *" # Run every 5 minutes
+    - cron: "*/15 * * * *" # Run every 15 minutes
+    - cron: "0 0 * * 0" # Run once every Sunday at midnight (keeps repo active)
   push:
     branches:
       - main # or master, depending on your default branch
   workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write # Add permission to push to the repository
 
 jobs:
   monitor:
@@ -32,3 +36,32 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: node dist/index.js
+
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main # or master, depending on your default branch
+          token: ${{ secrets.GITHUB_TOKEN }} # Use the built-in token
+
+      - name: Create activity commit
+        run: |
+          date > .github/activity_timestamp
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add .github/activity_timestamp
+          git commit -m "chore: Bump activity timestamp"
+          git push
+
+      - name: Send heartbeat message
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          UPTIME_WEEKS=$((($(date +%s) - $(date -d "2024-04-08" +%s)) / (7*24*60*60)))
+          MESSAGE="🤖 *Subgraph Monitor Weekly Heartbeat*%0A%0A✅ Monitor is active and running%0A📊 Uptime: ${UPTIME_WEEKS} weeks%0A📅 Last check: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=${MESSAGE}" \
+            -d "parse_mode=Markdown"
